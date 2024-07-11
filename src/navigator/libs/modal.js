@@ -1,5 +1,5 @@
 import { getCurrentStateKey, getCurrModaKey, updatePreState } from '../state-key';
-import { KEY_NAME, MODAL_BAE_KEY, MODAL_CRUMBS_KEY_NAME, MODAL_KEY_NAME } from '../../constant';
+import { KEY_NAME,  MODAL_CRUMBS_KEY_NAME, MODAL_KEY_NAME } from '../../constant';
 import { _cutOffAndPush } from '../../util';
 // import { nativeDocument } from '../native';
 
@@ -11,10 +11,7 @@ export default {
   },
   proto: {
     modal({component, propsData, parent, success}){
-      const isBAEModal = arguments[0] === MODAL_BAE_KEY;
-      if(!isBAEModal){
-        this._autoBAE();
-      }
+
       const key = getCurrentStateKey();
       const page = this.stackMap[key];
       let modalKey = getCurrModaKey();
@@ -28,27 +25,24 @@ export default {
         uid: _genModalKey()
       }
       page.modalList.push(item);
-      if(isBAEModal){
-        item.isBAE = true;
-        return;
-      }
+
       const id = 'h_nav_modal_' + item.uid;
       if(component){
-        this.uniteVue.nextTick(() => {
+        this.implementation.nextTick(() => {
           if(!item._isDestroy){
-            // const Cmpt = this.uniteVue.extend(component);
+            // const Cmpt = this.implementation.extend(component);
             // const cmpt = new Cmpt({
             //   el: '#' + id,
             //   parent,
             //   propsData
             // });
-            const cmpt = this.uniteVue.newComponent(component, {
+            const cmpt = this.implementation.create(component, {
               el: '#' + id,
               parent,
               propsData
             });
             item._destoryCmpt = () => {
-              this.uniteVue.destroy(cmpt);
+              this.implementation.destroy(cmpt);
             };
             success && success(cmpt);
           }
@@ -69,19 +63,6 @@ export default {
             item._destoryCmpt();
           }
         })
-      }
-      if(modalKey === 0){
-        if(this._isNeedBAE()){
-          if(arr && arr.length > 1){
-            console.log('[removeModal] step not 1', arr.length);
-            this._autoBAE();
-          } else {
-            this.BAE.onFirstTrigger();
-            setTimeout(() => {
-              this._autoBAE();
-            }, this.BAE.maxInterval);
-          }
-        }
       }
     },
     _autoRemoveModal(){

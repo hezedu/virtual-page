@@ -58,28 +58,6 @@ export default {
         this._history.go(-steps);
       }
     },
-    backToPage(_steps, tra){
-      const arr = this._modal_crumbs;
-      console.log('[backToPage] _modal_crumbs', arr);
-      if(!arr.length){
-        this.back(_steps, tra);
-        return;
-      }
-      const key = getCurrentStateKey();
-      const distKey = key - _steps;
-      let i = 0, v, count = 0;
-      const max = arr.length;
-      for(; i < max; i++){
-        v = arr[i];
-        if(v[0] > distKey){
-          count = count + v[1];
-        } else {
-          break;
-        }
-      }
-      this.back(_steps + count, tra);
-      
-    },
     _backAndApply(steps, method, args, tra){
       if(steps < 1){
         return;

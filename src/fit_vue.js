@@ -4,7 +4,7 @@ export function uniteVue2(_Vue){
   return {
     proto: _Vue.prototype,
     nextTick: _Vue.nextTick,
-    newComponent: function(Cmpt, newOpts) {
+    create: function(Cmpt, newOpts) {
       const CmptExtend = _Vue.extend(Cmpt);
       return new CmptExtend(newOpts);
     },
@@ -26,7 +26,7 @@ export function uniteVue3(app){
   return {
     proto: app.config.globalProperties,
     nextTick: _Vue3.nextTick,
-    newComponent: (Cmpt, newOpts) => {
+    create: (Cmpt, newOpts) => {
       let app = _Vue3.createApp(Cmpt, newOpts.propsData);
       app.mount(newOpts.el);
       return app;

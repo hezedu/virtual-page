@@ -4,7 +4,6 @@
       <PageMain 
             :path="v.path"
             :title="v.title"
-            :isHome="v.isHome"
             :isTab="v.isTab"
             :tabIndex="v.tabIndex"
             :stateKey="v.stateKey"
@@ -21,7 +20,6 @@
       <div class="h-nav-modal"  
         v-for="modal in v.modalList" 
         :key="modal.key"
-        v-show="!modal.isBAE"
         :style="{zIndex: modal.key}"
       >
         <div :id="'h_nav_modal_' + modal.uid" />

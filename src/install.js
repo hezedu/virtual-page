@@ -4,7 +4,7 @@ import Navigator from './cmpt/navigator.vue';
 import navigator from './navigator/navigator';
 import { trimSlash } from './navigator/url';
 import ShowHideMixin from './mixin/show-hide-mixin';
-import { def, throwErr, getVueV, noop } from './util';
+import { def, throwErr, getVueV } from './util';
 import { uniteVue2} from './fit_vue';
 import {cmptPageSuffix, 
   notFoundPageKey, 
@@ -22,12 +22,12 @@ const defNotFoundPage = {
 
 export default function install(_Vue, config) {
   const vueV = getVueV(_Vue);
-  let uniteVue;
+  let implementation;
   if(vueV === 2){
-    uniteVue = uniteVue2(_Vue);
+    implementation = uniteVue2(_Vue);
   // } else if(vueV === 3){ // FIT_VUE_3_SWITCH
-  //   uniteVue = uniteVue$3(_Vue);
-  //   uniteVue.is3 = true;
+  //   implementation = implementation$3(_Vue);
+  //   implementation.is3 = true;
   } else {
     throwErr('Unsupported version of Vue ' + vueV);
   }
@@ -68,26 +68,14 @@ export default function install(_Vue, config) {
   def(globalOption, config, 'navigatorTriggerEvent', DEF_NAVIGATOR_TRIGGER_EVENT);
   def(globalOption, config, 'transition', DEF_TRANSITION);
   def(globalOption, config, 'pageStyle', DEF_PAGE_STYLE);
-  def(globalOption, config, 'homePagePath', config.pages[0].path);
-  const homePage = pageMap[trimSlash(globalOption.homePagePath)];
 
-  if(!homePage){
-    throwErr('Home page not found');
-  }
+ 
   
-  homePage.isHome = true;
-  
-  let BAE = null;
-  if(config.backAgainToExit){
-    BAE = Object.create(null);
-    def(BAE, config.backAgainToExit, 'maxInterval', 2000);
-    def(BAE, config.backAgainToExit, 'onFirstTrigger', noop);
-  }
+
 
   const options = {
     global: globalOption,
-    BAE,
-    uniteVue,
+    implementation,
     pageMap,
     cmptPageSuffix,
     notFoundPage,
@@ -98,8 +86,8 @@ export default function install(_Vue, config) {
   def(options, config, 'urlBase', DEF_URL_BASE);
   def(options, config, 'urlIsHashMode', DEF_URL_IS_HASH_MODE);
 
-  uniteVue.proto.$navigator = navigator(options);
-  _Vue.mixin(ShowHideMixin(uniteVue.is3));
+  implementation.proto.$navigator = navigator(options);
+  _Vue.mixin(ShowHideMixin(implementation.is3));
 }
 
 function _formatPages(pages){
@@ -117,7 +105,6 @@ function _formatPages(pages){
     Object.assign(fpage, {
       trimedPath: tk,
       isTab: false,
-      isHome: false,
       cmptKey: cmptPageSuffix + i
     });
 

@@ -4,7 +4,6 @@ import { getCurrentStateKey, genStateKey, getCurrModaKey,  getPreState, updatePr
 import { KEY_NAME, BACK_TRA_PROP_KEY } from '../constant';
 import { noop, throwErr } from '../util';
 import modalPart from './libs/modal';
-import BAEPart from './libs/bae';
 import BackPart from './libs/back';
 let isCreated = false;
 
@@ -18,11 +17,11 @@ function History(opt){
   this._history = nativeHistory;
   this._location = nativeLocation;
   this._isOmitForwardEvent = false;
-  this.BAE = opt.BAE;
+
   // this._exitImmediately = true;
   // this.onExit = opt.onExit; // Chrome must touch the document once to work.
   this._tra = {className: this._global.transition};
-  this.uniteVue = opt.uniteVue;
+
   this.pageMap = opt.pageMap;
   this.notFoundPage = opt.notFoundPage;
   if(opt.tabBar){
@@ -50,7 +49,6 @@ function History(opt){
     title: null,
     className: undefined,
 
-    isHome: false,
     isTab: false,
     tabIndex: null,
     cmptKey: null,
@@ -64,7 +62,6 @@ function History(opt){
   }
   BackPart.init.apply(this);
   modalPart.init.apply(this);
-  // this.fitVue$3(); // FIT_VUE_3_SWITCH
 }
 
 History.prototype.checkCompatibility = function(){
@@ -92,7 +89,6 @@ History.prototype._onRouted = function(){
     title: curr.title,
     routeFullPath: curr.route.fullPath
   });
-  this._autoBAE(curr.route.trimedPath);
 }
 
 History.prototype._genStackItemId = function(){
@@ -130,7 +126,6 @@ History.prototype._forMatInputArg = function(opt){
 
 
 History.prototype._load = function(userUrl){
-  console.log('load', this.BAE, this.pageMap);
   this._bind();
   const _userUrl = userUrl === undefined ? 
       this.URL.getUrlByLocation() : 
@@ -211,7 +206,6 @@ History.prototype._setMapItem = function(key, route){
     tabIndex: page.tabIndex,
     route,
     cmptKey: page.cmptKey,
-    isHome: page.isHome,
     isTab: page.isTab,
     stateKey: key,
     className: page.className,
@@ -222,16 +216,11 @@ History.prototype._setMapItem = function(key, route){
 
   if(_page.isTab){
     _page.stackId = 'tab_stack_' + this.tabCtrlerStackId;
-    this.uniteVue.set(this.tabStackMap, page.tabIndex, _page);
+    this.implementation.set(this.tabStackMap, page.tabIndex, _page);
   } else {
     _page.stackId = this._genStackItemId();
   }
-
-  
-  
-  
-  // Object.assign(this.currentPage, _page);
-  this.uniteVue.set(this.stackMap, key, _page);
+  this.implementation.set(this.stackMap, key, _page);
   Object.assign(this.currentPage, _page);
 }
 History.prototype._getBackTra = function(){
@@ -242,7 +231,6 @@ History.prototype._getBackTra = function(){
 }
 
 History.prototype._push = function(fullParse, tra){
-  this._autoBAE();
   /* 
     from [vue-router]
     try...catch the pushState call to get around Safari
@@ -281,19 +269,6 @@ History.prototype._push = function(fullParse, tra){
   this._onRouted();
 }
 
-// History.prototype._replaceCurrPage = function(fullParse, behavior, _dista2nce){
-//   const isBAE = this._isBAEPage();
-//   const isDistBAE = this._isBAEPageByTK(fullUrlParse);
-//   let step = this.get2CurrModaKey();
-//   if(isBAE && !isDistBAE){
-//     step = step + 1;
-//   }
-//   if(step){
-//     this._backAndApply(step, '_repl2ace', arguments);
-//     return;
-//   }
-//   this._repl2ace.apply(this, arguments);
-// }
 
 
 History.prototype._replace = function(fullParse, behavior){
@@ -320,12 +295,12 @@ History.prototype._replace = function(fullParse, behavior){
   this._history.replaceState(state, '', toUrl);
   updatePreState();
 
-  this.uniteVue.nextTick(() => {
+  this.implementation.nextTick(() => {
     if(newBehavior.type === 'relaunch'){
       this._setAllCleaned();
       const oldKey = key - distance;
       this.stackMap[oldKey].isClean = false;
-      this.uniteVue.nextTick(() => {
+      this.implementation.nextTick(() => {
         this._clearAll();
         this._setMapItem(key, fullParse);
         this._onRouted();
@@ -387,14 +362,14 @@ History.prototype._clearAfter = function(){
   if(len){
     const last = arr.pop();
     last.isClean = false;
-    this.uniteVue.delete(map, last.stateKey);
+    this.implementation.delete(map, last.stateKey);
     len = arr.length;
     if(len){
-      this.uniteVue.nextTick(() => {
+      this.implementation.nextTick(() => {
         i =  0;
         for(; i < len; i++){
           v = arr[i];
-          this.uniteVue.delete(map, v.stateKey);
+          this.implementation.delete(map, v.stateKey);
         }
       })
     }
@@ -404,7 +379,7 @@ History.prototype._clearAfter = function(){
 History.prototype._clearMap  = function(map){
   let i;
   for(i in map){
-    this.uniteVue.delete(map, i);
+    this.implementation.delete(map, i);
   }
 }
 
@@ -506,7 +481,7 @@ History.prototype.handlePop = function(){
   } else {
     this._setMapItem(currKey, fullUrlParse(this.URL.getUrlByLocation()));
   }
-  this.uniteVue.nextTick(() => {
+  this.implementation.nextTick(() => {
     this._clearAfter();
     this._onRouted();
   })
@@ -532,26 +507,9 @@ History.prototype.handleWinUnload = function(){
 
 
 Object.assign(History.prototype, modalPart.proto);
-Object.assign(History.prototype, BAEPart.proto);
 Object.assign(History.prototype, BackPart.proto);
 
-// History.prototype.fitVue$3 = function(){ // FIT_VUE_3_SWITCH
-//   if(this.uniteVue.is3){
-//     let v;
-//     ['stackMap', 'behavior', 'currentPage', '_tra', 'tabList', 'tabStackMap'].forEach(k => {
-//       v = this[k];
-//       if(v){
-//         this[k] = vue$3Reactive(v)
-//       }
-//     })
-//   }
-// }
+
 
 export default History;
 
-// window.addEventListener('beforeunload', function(event){
-//   console.log('beforeunload')
-//   event.preventDefault();
-//   event.returnValue = "Are you sure you want to exit?"
-//   return 'beforeunload';
-// })

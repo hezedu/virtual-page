@@ -25,7 +25,7 @@
     "url": "https://github.com/hezedu/history-navigation-vue.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --progress --hot --color",
+    "dev": "webpack-dev-server --progress --hot --color",
     "build": "npm run build_dev && npm run _build_pro && node script/after_webpack_build.js",
     "_build_pro": "webpack --node-env=production --color --progress --config webpack.build.config.js",
     "build_dev": "webpack --node-env=development --color --progress --config webpack.build.config.js",

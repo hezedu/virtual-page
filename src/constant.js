@@ -15,9 +15,7 @@ export const KEY_NAME = '_h_n_key';
 export const MODAL_CRUMBS_KEY_NAME = '_h_n_crumbs';
 export const MODAL_KEY_NAME = '_h_n_modal_key';
 export const BACK_TRA_PROP_KEY = '_h_n_b_tra';
-
-export const MODAL_BAE_KEY = '_H_NAV_BAE_MODAL_';
-
+ 
 export const DEF_PAGE_STYLE = undefined;
 
 // export const AGAIN_TO_EXIT_INTERVAL = 2000;
